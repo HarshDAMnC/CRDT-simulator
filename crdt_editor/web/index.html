@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRDT Collaborative Editor</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        
+        <header class="header">
+            <div class="brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="brand-icon">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M7 8H17M7 12H17M7 16H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <h1>CRDT Docs</h1>
+            </div>
+            
+            <div class="controls">
+                <div class="active-user-badge" id="activeUserBadge">
+                    <span class="dot"></span>
+                    <span id="activeUserName">User 1</span>
+                </div>
+                <div class="shortcut-hint">
+                    <kbd>Tab</kbd> to switch users
+                </div>
+            </div>
+        </header>
+
+        <main class="editor-workspace">
+            <!-- Simulated Google Doc Canvas -->
+            <div class="document-paper" id="paper">
+                <div class="content-layer" id="contentLayer"></div>
+                <!-- Cursors are absolutely absolutely positioned over the text -->
+                <div class="cursor cursor-user1" id="cursor1">
+                    <div class="cursor-flag">User 1</div>
+                </div>
+                <div class="cursor cursor-user2 idle" id="cursor2">
+                    <div class="cursor-flag">User 2</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Hidden input to capture mobile/desktop raw keyboard events reliably -->
+        <textarea id="hiddenInput" class="hidden-input" wrap="off" autofocus></textarea>
+        
+    </div>
+
+    <!-- The actual LSEQ CRDT Engine ported from our C++ code -->
+    <script src="crdt.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
