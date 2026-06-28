@@ -24,25 +24,6 @@ Traditional collaborative applications rely on **Operational Transformation (OT)
 
 ---
 
-## 🧠 System Architecture
-
-The project splits conceptually into a pure math computational background layer and an interactive DOM layout layer.
-
-```mermaid
-graph TD
-    UI[Vanilla HTML/JS UI Layer] --> |Keystroke Input| buffer[Hidden Buffer Capture]
-    buffer --> LSEQ[LSEQ CRDT Engine]
-    LSEQ --> Tree[(In-Memory Prefix Tree)]
-    LSEQ --> |Broadcast Channel| MessageBus((Pub/Sub Router))
-    MessageBus -.-> |Cross-Tab Sync| Peers[Remote Browsers]
-    Peers -> |Remote CRDT Patch| MessageBus
-    MessageBus --> LSEQ
-    Tree --> |DFS State Rebuild| Render[DOM Pixel Renderer]
-    Render --> UI
-```
-
----
-
 ## 🛠 Project Structure
 
 ```text
