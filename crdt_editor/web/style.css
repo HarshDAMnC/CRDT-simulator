@@ -107,6 +107,12 @@ kbd {
     font-size: 12px;
 }
 
+.workspace-wrapper {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
 /* Document Workspace */
 .editor-workspace {
     flex: 1;
@@ -115,6 +121,68 @@ kbd {
     display: flex;
     justify-content: center;
     align-items: flex-start;
+}
+
+/* CRDT Sidebar */
+.crdt-sidebar {
+    width: 320px;
+    background-color: #0b0c10;
+    color: #45f248; /* Neon green */
+    font-family: 'Consolas', 'Courier New', monospace;
+    border-left: 1px solid #1f2833;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.sidebar-header {
+    padding: 16px;
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: 1px solid #1f2833;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background-color: #1f2833;
+    color: #fff;
+}
+
+.indices-list {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.index-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    align-items: center;
+    padding: 6px;
+    border-radius: 4px;
+    background-color: rgba(31, 40, 51, 0.4);
+    border: 1px solid rgba(69, 242, 72, 0.1);
+}
+
+.index-char {
+    color: #fff;
+    background: #1f2833;
+    min-width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    font-weight: bold;
+    flex-shrink: 0;
+    border: 1px solid #45f248;
+}
+
+.index-path {
+    word-break: break-all;
+    opacity: 0.9;
 }
 
 .document-paper {

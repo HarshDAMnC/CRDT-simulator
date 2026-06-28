@@ -30,19 +30,26 @@
             </div>
         </header>
 
-        <main class="editor-workspace">
-            <!-- Simulated Google Doc Canvas -->
-            <div class="document-paper" id="paper">
-                <div class="content-layer" id="contentLayer"></div>
-                <!-- Cursors are absolutely absolutely positioned over the text -->
-                <div class="cursor cursor-user1" id="cursor1">
-                    <div class="cursor-flag">User 1</div>
+        <div class="workspace-wrapper">
+            <main class="editor-workspace">
+                <!-- Simulated Google Doc Canvas -->
+                <div class="document-paper" id="paper">
+                    <div class="content-layer" id="contentLayer"></div>
+                    <!-- Cursors are absolutely positioned over the text -->
+                    <div class="cursor cursor-user1" id="cursor1">
+                        <div class="cursor-flag">User 1</div>
+                    </div>
+                    <div class="cursor cursor-user2 idle" id="cursor2">
+                        <div class="cursor-flag">User 2</div>
+                    </div>
                 </div>
-                <div class="cursor cursor-user2 idle" id="cursor2">
-                    <div class="cursor-flag">User 2</div>
-                </div>
-            </div>
-        </main>
+            </main>
+            
+            <aside class="crdt-sidebar" id="crdtSidebar">
+                <div class="sidebar-header">CRDT State (Indices)</div>
+                <div id="crdtIndicesList" class="indices-list"></div>
+            </aside>
+        </div>
 
         <!-- Hidden input to capture mobile/desktop raw keyboard events reliably -->
         <textarea id="hiddenInput" class="hidden-input" wrap="off" autofocus></textarea>

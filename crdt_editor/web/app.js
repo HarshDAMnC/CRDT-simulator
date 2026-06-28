@@ -146,6 +146,85 @@ document.addEventListener('click', () => {
 });
 hiddenInput.focus();
 
+paperEl.addEventListener('click', (e) => {
+    const spans = contentLayer.querySelectorAll('.char-span');
+    if (spans.length === 0 || (spans.length === 1 && spans[0].id === 'char-blank')) {
+        const activeClient = (activeUser === 1) ? client1 : client2;
+        activeClient.cursorIndex = 0;
+        renderUI();
+        return;
+    }
+
+    let closestIndex = 0;
+    let minDistance = Infinity;
+    const clickX = e.clientX;
+    const clickY = e.clientY;
+    
+    for (let i = 0; i < spans.length; i++) {
+        const rect = spans[i].getBoundingClientRect();
+        const charCenterX = rect.left + rect.width / 2;
+        const charCenterY = rect.top + rect.height / 2;
+        
+        // Weight Y distance heavily so clicking on a line finds char on that line
+        const dist = Math.pow(clickX - charCenterX, 2) + Math.pow((clickY - charCenterY) * 5, 2);
+        
+        if (dist < minDistance) {
+            minDistance = dist;
+            if (clickX < charCenterX) {
+                closestIndex = i;
+            } else {
+                closestIndex = i + 1;
+            }
+        }
+    }
+    
+    const activeClient = (activeUser === 1) ? client1 : client2;
+    activeClient.cursorIndex = closestIndex;
+    renderUI();
+});
+
+function moveCursorVertically(client, dir) {
+    const spans = contentLayer.querySelectorAll('.char-span');
+    if (spans.length === 0 || (spans.length === 1 && spans[0].id === 'char-blank')) return;
+
+    const cursorEl = (activeUser === 1) ? cursor1El : cursor2El;
+    const currentRect = cursorEl.getBoundingClientRect();
+    
+    const targetX = currentRect.left;
+    const targetY = currentRect.top + (currentRect.height / 2) + (dir * currentRect.height);
+
+    let closestIndex = client.cursorIndex;
+    let minDistance = Infinity;
+    
+    for (let i = 0; i < spans.length; i++) {
+        const rect = spans[i].getBoundingClientRect();
+        const charCenterY = rect.top + rect.height / 2;
+        
+        const yDiff = Math.abs(charCenterY - targetY);
+        // Small tolerance for line height matching
+        if (yDiff < rect.height / 1.5) {
+            const charCenterX = rect.left + rect.width / 2;
+            const xDiff = Math.abs(charCenterX - targetX);
+            
+            if (xDiff < minDistance) {
+                minDistance = xDiff;
+                if (targetX < charCenterX) {
+                    closestIndex = i;
+                } else {
+                    closestIndex = i + 1;
+                }
+            }
+        }
+    }
+    
+    if (minDistance === Infinity) {
+        if (dir === -1) closestIndex = 0;
+        else closestIndex = client.tree.getDocumentState().positions.length;
+    }
+    
+    client.cursorIndex = closestIndex;
+}
+
 // Trigger UI refresh when networked packets arrive
 window.onRemoteUpdate = (receiverId) => {
     renderUI();
@@ -204,6 +283,27 @@ function renderUI() {
         cursor1El.classList.remove('active');
         hiddenInput.value = "";
     }
+
+    // Update CRDT Sidebar
+    const crdtSidebarList = document.getElementById('crdtIndicesList');
+    if (crdtSidebarList) {
+        crdtSidebarList.innerHTML = '';
+        for (let i = 0; i < text.length; i++) {
+            let ch = text[i];
+            if (ch === ' ') ch = '&nbsp;';
+            if (ch === '\n') ch = '↵';
+            
+            const pos = state.positions[i];
+            const posString = pos.map(p => `[${p.digit}:${p.site}]`).join(' → ');
+            
+            crdtSidebarList.innerHTML += `
+                <div class="index-item">
+                    <div class="index-char">${ch}</div>
+                    <div class="index-path">${posString}</div>
+                </div>
+            `;
+        }
+    }
 }
 
 function positionCursor(cursorEl, index, isLocalAndActive) {
@@ -249,6 +349,19 @@ hiddenInput.addEventListener('keydown', (e) => {
         e.preventDefault();
         activeClient.moveCursorRight();
         renderUI();
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        moveCursorVertically(activeClient, -1);
+        renderUI();
+    } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        moveCursorVertically(activeClient, 1);
+        renderUI();
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        activeClient.typeChar('\n');
+    renderUI();
+
     } else if (e.key === 'Backspace') {
         e.preventDefault();
         activeClient.deleteChar();
