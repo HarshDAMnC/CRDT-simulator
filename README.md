@@ -31,10 +31,10 @@ The overarching architecture decouples the theoretical CRDT structure from the r
 ```mermaid
 graph TD
     subgraph Client_A ["Browser Client 1 (PC)"]
-        UI_A["HTML/JS DOM"] --> |Keystroke Input| buffer_A["Buffer Capture"]
+        UI_A["HTML/JS DOM"] -->|"Keystroke Input"| buffer_A["Buffer Capture"]
         buffer_A --> LSEQ_A["LSEQ CRDT Engine"]
         LSEQ_A --> Tree_A[("In-Memory Prefix Tree")]
-        LSEQ_A <--> |WebSocket JSON| MessageBus_A(("Message Bus"))
+        LSEQ_A <--> MessageBus_A(("Message Bus"))
     end
     
     subgraph Server ["Node.js WebSocket Relay"]
@@ -42,13 +42,13 @@ graph TD
     end
     
     subgraph Client_B ["Browser Client 2 (Phone)"]
-        MessageBus_B(("Message Bus")) <--> |WebSocket JSON| LSEQ_B["LSEQ CRDT Engine"]
+        MessageBus_B(("Message Bus")) <--> LSEQ_B["LSEQ CRDT Engine"]
         LSEQ_B --> Tree_B[("In-Memory Prefix Tree")]
-        LSEQ_B <-- |DFS State Rebuild| UI_B["HTML/JS DOM"]
+        LSEQ_B -->|"DFS State Rebuild"| UI_B["HTML/JS DOM"]
     end
 
-    MessageBus_A == Broadcasts ==> WS
-    WS == Forwards ==> MessageBus_B
+    MessageBus_A ==>|"Broadcasts"| WS
+    WS ==>|"Forwards"| MessageBus_B
 ```
 
 ---
