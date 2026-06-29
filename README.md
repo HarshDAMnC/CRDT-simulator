@@ -3,107 +3,109 @@
 </h1>
 
 <p align="center">
-  <strong>A full-stack, peer-to-peer visual text editor engine demonstrating state-of-the-art decentralized document synchronization without a centralized conflict-resolution server.</strong>
+  <strong>A full-stack, peer-to-peer visual text editor engine demonstrating state-of-the-art decentralized document synchronization across multiple devices without a centralized database.</strong>
 </p>
 
 ---
 
 ## 📖 Project Overview
 
-This project is an interview-ready, advanced implementation of a collaborative text editor (similar to Google Docs or Figma's text engine) built securely on strong Object-Oriented limits and robust Data Structure implementations.
+This project is an interview-ready, advanced implementation of a real-time collaborative text editor (similar to Google Docs). Traditional collaborative applications rely on **Operational Transformation (OT)** which requires a central authoritative server to lock and sequence keystrokes sequentially. 
 
-Traditional collaborative applications rely on **Operational Transformation (OT)** requiring a central authoritative server to lock and sequence keystrokes. This project eschews OT in favor of a mathematically commutative **Conflict-Free Replicated Data Type (CRDT)** using the **LSEQ (Logoot-Undo sequence) algorithm**.
+This project eschews OT and central servers in favor of mathematically commutative **Conflict-Free Replicated Data Types (CRDTs)** using the **LSEQ (Logoot-Undo sequence) Algorithm**.
 
 ## 🚀 Key Features
 
-* **Decentralized Synchronization**: Peer-to-peer cross-client replication using CRDTs.
+* **True Cross-Device Synchronization**: Peer-to-peer mapping using a lightweight Node.js WebSocket relay router. 
 * **Fractional Indexing Core Engine**: Resolves keystroke collisions deterministically via variable-depth Rational paths rather than conflicting integers.
-* **Tombstone Deletions**: Retains chronological consistency by logically blinding variables instead of physically overwriting them in memory.
 * **Real-time Diagnostic Debugger**: A specialized graphical sidebar dynamically mapping human characters to their exact physical index matrices on the UI for real-time memory introspection.
-* **Euclidean Cursor Navigation**: Custom mathematical approximation grids to natively map exact 2D pixel coordinates seamlessly onto a purely 1D continuous string state array.
+* **Euclidean Cursor Navigation**: Custom mathematical approximation grids implicitly map exact 2D pixel coordinates seamlessly onto a purely 1D continuous string state array.
+* **Tombstone Deletions**: Retains chronological consistency by logically blinding variables instead of physically overwriting them in memory.
 
 ---
 
 ## 🧠 System Architecture
 
-The project splits conceptually into a pure math computational background layer and an interactive DOM layout layer.
+The overarching architecture decouples the theoretical CRDT structure from the raw DOM and cleanly isolates network threading out of typical UI flows.
 
 ```mermaid
 graph TD
-    UI[Vanilla HTML/JS UI Layer] --> |Keystroke Input| buffer[Hidden Buffer Capture]
-    buffer --> LSEQ[LSEQ CRDT Engine]
-    LSEQ --> Tree[(In-Memory Prefix Tree)]
-    LSEQ --> |Broadcast Channel| MessageBus((Pub/Sub Router))
-    MessageBus -.-> |Cross-Tab Sync| Peers[Remote Browsers]
-    Peers -> |Remote CRDT Patch| MessageBus
-    MessageBus --> LSEQ
-    Tree --> |DFS State Rebuild| Render[DOM Pixel Renderer]
-    Render --> UI
+    subgraph Client A [Browser Client 1 (PC)]
+        UI_A[HTML/JS DOM] --> |Keystroke Input| buffer_A[Buffer Capture]
+        buffer_A --> LSEQ_A[LSEQ CRDT Engine]
+        LSEQ_A --> Tree_A[(In-Memory Prefix Tree)]
+        LSEQ_A <--> |WebSocket JSON| MessageBus_A((Message Bus))
+    end
+    
+    subgraph Server [Node.js WebSocket Relay]
+        WS[ws:// Relay Core]
+    end
+    
+    subgraph Client B [Browser Client 2 (Phone)]
+        MessageBus_B((Message Bus)) <--> |WebSocket JSON| LSEQ_B[LSEQ CRDT Engine]
+        LSEQ_B --> Tree_B[(In-Memory Prefix Tree)]
+        LSEQ_B <-- |DFS State Rebuild| UI_B[HTML/JS DOM]
+    end
+
+    MessageBus_A == "Broadcasts" ==> WS
+    WS == "Forwards" ==> MessageBus_B
 ```
 
 ---
 
-## 🛠 Project Structure
+## 🔬 Deep Dive: Algorithms & Data Structures
 
-```text
-crdt_editor/
-├── CMakeLists.txt         # Build script for the foundational C++ terminal engine
-├── src/                   # 🖥️ Part 1: The Raw C++ CS Concepts
-│   ├── main.cpp           
-│   ├── LSEQTree.hpp       # DSA Core: The prefix tree (Trie) enabling CRDT
-│   ├── MessageBus.hpp     # OOP Core: Thread-safe Pub/Sub (Observer Pattern)
-│   └── CRDTEditor.hpp     
-└── web/                   # 🌐 Part 2: The Google Docs Web Application Engine
-    ├── app.js             # UI Controller, Euclidean cursor grid maths
-    ├── crdt.js            # Vanilla JS Web Port of our C++ CRDT Engine
-    ├── index.html         # Application layout and debugging visualization
-    └── style.css          # Fluid layout and hacker-themed cyber debugging CSS
-```
+### 1. The Fractional Index Allocation Matrix (LSEQ)
+When `User A (Site 1)` and `User B (Site 2)` type concurrently on the same spatial line, their index vectors combine mathematically without clashing:
+- `allocPos(prev, next)` calculates infinite numerical cavities instead of adjacent absolute index variables.
+- If the integer distance collapses to $1$ (e.g. going between index `[1]` and index `[2]`), LSEQ expands horizontally into **Depth 1**, allocating `[1, 1]`. This guarantees infinite scaling horizontally across branches without shifting prior character strings.
+- **Tie Breaker**: Simultaneous keystrokes falling into identical physical gaps collapse against a globally unique Site Identifier attached to every `IdNode`, forcing complete deterministic sorting synchronization.
 
----
-
-## 🔬 Core Algorithms & Data Structures
-
-### 1. N-ary Prefix Tree (Trie)
-The base LSEQ construct models data exactly as an infinitely expansive tree. Characters map dynamically to fractional boundaries avoiding integer bounds. 
-
-### 2. Fractional Index Allocation Matrix (The Magic)
-When `User A (Site 1)` and `User B (Site 2)` type concurrently on the same spatial line, their index vectors combine mathematically:
-- `allocPos(prev, next)` looks for numerical cavities.
-- If $Distance = 1$ (e.g. `[1]...[2]`), LSEQ expands horizontally into **Depth 1** creating `[1, 1]` allowing infinite spatial scaling mathematically without rewriting prior strings.
-- **Tie Breaker**: Path overlaps natively collapse linearly against a globally unique Site Identifier guaranteeing pure deterministic sorting consistency.
+### 2. Euclidean 2D Input Abstraction
+CRDT paths yield a strict 1-Dimensional stream, meaning they natively do not understand HTML layouts, text wrapping, `ArrowUp`, `ArrowDown`, or physical click trajectories.
+To simulate a word processor, the engine queries the native browser Layout pipeline:
+- Calculates localized Euclidean grid spans via `.getBoundingClientRect()`.
+- Projects interactions using exponentiated vertical pixel barriers: `Dist = (X - charX)² + (Y - charY * 5)²` ensuring exact target snapping mapped strictly to the closest rational CRDT element underneath it.
 
 ### 3. Pre-Order Depth-First Search (DFS)
-To safely project the non-linear math tree sequentially into modern JavaScript Strings without breaking HTML DOM rendering speed: a $O(N)$ DFS dynamically recreates the document on render bursts bypassing logically removed **Tombstone** records entirely.
+To safely project the fractional mathematical tree cleanly onto vanilla browser APIs seamlessly: an $O(N)$ DFS dynamically recreates the flat-file sequence during aggressive DOM render bursts while skipping natively blinded **Tombstone** variables.
 
 ---
 
-## ⏱️ Time Complexities (Big O Analysis)
+## ⏱️ Big-O Time Complexities
 
 | Operation | Complexity | Description |
 | :--- | :--- | :--- |
-| **Allocate Pos** | $\mathcal{O}(D)$ | $D$ is fractional depth. Generating sequences algorithmically walks the gaps between left/right coordinate sequences linearly. |
-| **Insert Object** | $\mathcal{O}(D \cdot B)$ | Inserting into the multi-child structure where $B$ represents the branching factor of concurrent adjacent edits. |
-| **Apply Tombstone**| $\mathcal{O}(D \cdot B)$ | Follows exactly the same path iteration, mutating the node metadata boolean rather than dropping the object. |
-| **Render Engine** | $\mathcal{O}(N)$ | Pure graph traversal building an output render sequence against $N$ document nodes. |
+| **Allocate Gap** | $\mathcal{O}(D)$ | $D$ equals the current sub-sequence depth. Determining optimal paths mathematically spans differences left/right dynamically. |
+| **Tree Insertion** | $\mathcal{O}(D \cdot B)$ | Inserting into an N-ary tree utilizing branching factor $B$. |
+| **Tombstoning**| $\mathcal{O}(D \cdot B)$ | Flagging characters via boolean variables directly parallelizing normal logical branch iterations. |
+| **Complete Render** | $\mathcal{O}(N)$ | Reconstructing string layout pipelines via Pre-order Depth First Search. Can be artificially throttled natively via Sub-Tree patching logic. |
 
 ---
 
-## 💻 Design Patterns in Use
+## 🎮 How to Run and Demo For Interviews
 
-1. **Observer Pattern**: Utilized within the native `MessageBus` classes explicitly isolating complex network IO threading out of raw deterministic editor engines.
-2. **Encapsulation**: Raw fractional trees and Red-Black algorithmic properties natively refuse to expose pointers directly preventing fatal memory corruptions externally.
+This interface acts natively as an interactive presentation model meant to explicitly prove out these mathematical complexities to a technical observer.
 
----
+#### 1. Start the Background Services
+Open two localized command shells targeting the root directory:
+**Terminal 1 (The Relay Router):**
+```bash
+cd server
+npm install
+node index.js
+```
+**Terminal 2 (The Static HTTP Interface):**
+```bash
+cd web
+npx serve .
+```
 
-## 🎮 How to Demo For Interviews
+#### 2. Cross-Device Connectivity
+1. Navigate directly to `http://localhost:3000` via your main PC's web browser.
+2. Ensure your smart-phone or secondary laptop connects to the exact same Wi-Fi connection.
+3. Access your host machines localized Internal IPv4 on your mobile browser over Port 3000. *(e.g. `http://192.168.1.5:3000`)*.
 
-We built a seamless visual interface exactly meant to prove the theoretical concepts out smoothly.
-
-1. **Start the Relay Server**: Open a terminal, `cd server`, run `npm install`, and then execute `node index.js`. It will host the WebSocket relay.
-2. **Start the Web UI**: Right click `web/index.html` via VSCode and select **"Open with Live Server"** (or just open it natively inside any Firefox/Chrome browser).
-3. **Setup Multiplayer**: Duplicate your browser tab. Better yet, open it on a completely different computer or phone connected to the same WiFi network (using your computer's local IP address).
-4. **Show Off CRDT Conflict Resolution**: 
-    - Type rapidly in Tab 1, it will synchronize immediately to Tab 2 through the WebSocket.
-    - Type on the exact same line simultaneously; you will notice none of the characters get scrambled.
-5. **Highlight the Memory Model**: As you add/remove content natively, guide your interviewer to your Right-Sidebar. This displays the actual Fractional Index variables in real-time, mapping every individual keystroke directly onto its LSEQ algorithm tree value! 
+#### 3. Proving The Concepts
+- **Show Off Conflict Resolution**: Rapidly input alternating data streams immediately side-by-side using the desktop setup against your synchronized mobile instance; notice sequence consistency stays mathematically intact without lag spikes. 
+- **Present the Native Matrix Tracker**: Pull observer attention securely onto the **Right-Sidebar.** As letters populate the primary grid realistically, point explicitly to the corresponding numeric mappings populating adjacent to them, highlighting the variables physically generating the LSEQ framework branches!
